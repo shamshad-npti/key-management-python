@@ -41,44 +41,60 @@ class Datasource(object):
         pass
 
 class DatastoreDatasource(Datasource):
-    NAMESPACE = "KMS"
-    FIELD = "_field"
+    namespace = "kms"
+    field = "_field"
 
     def __init__(self, project=None):
         super(DatastoreDatasource, self).__init__()
         self._client = datastore.Client(project=project)
 
     def _create_key(self, path, namespace=None):
-        namespace = namespace or self.NAMESPACE
-        return self._client.key(self.NAMESPACE, path, namespace=namespace)
+        namespace = namespace or self.namespace
+        return self._client.key(self.namespace, path, namespace=namespace)
 
     def get(self, key, key_type=None):
         data = self._client.get(self._create_key(key))
         if data is None:
             raise NotFoundError(key)
-        return data.get(self.FIELD, None)
+        return data.get(self.field, None)
 
     def put(self, key, value, key_type=None):
-        entity = datastore.Entity(key=key, exclude_from_indexes=(self.FIELD,))
-        entity.update({self.FIELD: value})
+        entity = datastore.Entity(key=key, exclude_from_indexes=(self.field,))
+        entity.update({self.field: value})
         self._client.put(entity)
 
     def delete(self, key, key_type=None):
         self._client.delete(self._create_key(key))
 
 
+class DictDatasource(Datasource):
+    def __init__(self):
+        super(DictDatasource, self).__init__()
+        self.kv_store = dict()
+
+    def get(self, key, key_type=None):
+        value = self.kv_store.get(key, None)
+        if value is None:
+            raise NotFoundError(key)
+        return value
+
+    def put(self, key, value, key_type=None):
+        self.kv_store[key] = value
+
+    def delete(self, key, key_type=None):
+        del self.kv_store[key]
+
+
 class KeyManager(object):
     """
     Manage all keys
     """
-    PUBLIC_KEY_ID = "publicKeyId"
-    PRIVATE_KEY_ID = "privateKeyId"
-    SECRET_KEY = "secretKey"
-    NAMESPACE = "KMS"
-    FIELD = "_field"
-    NUM_BITS = 1024
-    BLOCK_SIZE = 32
-    PROJECT = None
+    public_key_id = "publicKeyId"
+    private_key_id = "privateKeyId"
+    secret_key = "secretKey"
+    field = "_field"
+    num_bits = 1024
+    block_size = 32
 
     def __init__(self, datasource=DatastoreDatasource(), fetch=True):
         """
@@ -87,12 +103,12 @@ class KeyManager(object):
         """
         self._datasource = datasource
         if fetch:
-            self._public_key = RSA.importKey(datasource.get(self.PUBLIC_KEY_ID))
-            self._private_key = RSA.importKey(datasource.get(self.PRIVATE_KEY_ID))
-            self._secret_key = self._private_key.decrypt(datasource.get(self.SECRET_KEY))
+            self._public_key = RSA.importKey(datasource.get(self.public_key_id))
+            self._private_key = RSA.importKey(datasource.get(self.private_key_id))
+            self._secret_key = self._private_key.decrypt(datasource.get(self.secret_key))
 
     def _pad(self, value):
-        pad = (self.BLOCK_SIZE - len(value) % self.BLOCK_SIZE)
+        pad = (self.block_size - len(value) % self.block_size)
         return value + pad * chr(pad)
 
     @staticmethod
@@ -150,7 +166,7 @@ class KeyManager(object):
             if not rsa_key.has_private():
                 raise ValueError("Private is missing")
         else:
-            rsa_key = RSA.generate(self.NUM_BITS, Random.new().read)
+            rsa_key = RSA.generate(self.num_bits, Random.new().read)
 
         chars = string.ascii_letters + string.digits + "!@#$~`.,}{[]()"
         password_plain_text = ''.join([random.choice(chars) for _ in range(15)])
@@ -158,17 +174,17 @@ class KeyManager(object):
         password_encrypted = rsa_key.publickey().encrypt(password_hash, 0)[0]
 
         self._datasource.put(
-            key=self.PRIVATE_KEY_ID,
+            key=self.private_key_id,
             value=rsa_key.exportKey(),
             key_type=KeyType.rsa_private_key
         )
         self._datasource.put(
-            key=self.PUBLIC_KEY_ID,
+            key=self.public_key_id,
             value=rsa_key.publickey().exportKey(),
             key_type=KeyType.rsa_public_key
         )
         self._datasource.put(
-            key=self.SECRET_KEY,
+            key=self.secret_key,
             value=password_encrypted,
             key_type=KeyType.aes_secret_key
         )
