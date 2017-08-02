@@ -46,10 +46,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            export PYTHONPATH=`pwd`
-            cd ..
-            python -m unittest kms.test_kms
-
+            nosetests -vv test_*.py
       - store_artifacts:
           path: test-reports
           destination: test-reports
