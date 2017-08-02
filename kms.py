@@ -62,9 +62,11 @@ class DatastoreDatasource(Datasource):
         entity = datastore.Entity(key=key, exclude_from_indexes=(self.field,))
         entity.update({self.field: value})
         self._client.put(entity)
+        return True
 
     def delete(self, key, key_type=None):
         self._client.delete(self._create_key(key))
+        return True
 
 
 class DictDatasource(Datasource):
@@ -80,9 +82,11 @@ class DictDatasource(Datasource):
 
     def put(self, key, value, key_type=None):
         self.kv_store[key] = value
+        return True
 
     def delete(self, key, key_type=None):
         del self.kv_store[key]
+        return True
 
 
 class KeyManager(object):
@@ -128,7 +132,7 @@ class KeyManager(object):
         encrypt the key value and save it to
         cloud datastore
         """
-        self._datasource.put(name, self.encrypt(value))
+        return self._datasource.put(name, self.encrypt(value))
 
     def get(self, name):
         """
@@ -156,6 +160,7 @@ class KeyManager(object):
         remove key from storage
         """
         self._datasource.delete(name)
+        return True
 
     def init(self, filename=None, passphrase=None):
         """
@@ -188,6 +193,9 @@ class KeyManager(object):
             value=password_encrypted,
             key_type=KeyType.aes_secret_key
         )
+
+        return True
+
 
 def _save(args):
     regex = re.compile("^file://", re.I)
