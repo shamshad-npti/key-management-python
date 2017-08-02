@@ -1,5 +1,13 @@
 """
-Manage key securely
+Manage Key Securily
+---
+This module is intended to mitigate security risk
+associated with storing keys in settings file
+as a plain text. Using this module sensitive information
+in an application can be stored to a centralized location
+in encrypted format and those information such as database
+password would be retrieved and decrypted when application
+gets deployed or starts running
 """
 import argparse
 import re
@@ -22,25 +30,68 @@ class NotFoundError(Exception):
 
 
 class KeyType(object):
+    """
+    Key types enum
+    """
     rsa_public_key = "rsa_public_key"
     rsa_private_key = "rsa_private_key"
     aes_secret_key = "aes_secret_key"
 
 
 class Datasource(object):
+    """
+    An abstraction layer to store key-value
+    pair irrespective low level details to get,
+    set or delete the value stored
+    """
     def __init__(self):
         pass
 
     def get(self, key, key_type=None):
+        """
+        Retrieve the value stored in datasource
+        :param key: key stored in database
+        :type key: string
+        :param key_type: additional information about key type
+        :type key_type: `KeyType`
+        :returns: Value associated with the key
+        :rtype: object/string
+        """
         pass
 
     def put(self, key, value, key_type=None):
+        """
+        Store a new key value pair to datasource. It would
+        overwrite existing key
+        :param key: key of the value to store
+        :type key: basestring
+        :param value: value to store
+        :type value: basestring
+        :param key_type: type of key to be stored
+        :type key_type: `KeyType`
+        :returns: Status of store action. True if value
+            is successfully stored
+        :rtype: bool
+        """
         pass
 
     def delete(self, key, key_type=None):
+        """
+        Delete a key from datasource
+        :param key: key stored in database
+        :type key: basestring
+        :param key_type: additional information about key type
+        :type key_type: `KeyType`
+        """
         pass
 
+
 class DatastoreDatasource(Datasource):
+    """
+    Implementation of datasource that
+    utilizes google datastore to manage
+    key-value pair
+    """
     namespace = "kms"
     field = "_field"
 
@@ -70,6 +121,11 @@ class DatastoreDatasource(Datasource):
 
 
 class DictDatasource(Datasource):
+    """
+    Implementation of datasource that
+    utilizes python dictionary to store key-value
+    pair
+    """
     def __init__(self):
         super(DictDatasource, self).__init__()
         self.kv_store = dict()
