@@ -46,6 +46,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
+            export PYTHONPATH=`pwd`
             cd ..
             python -m unittest kms.test_kms
 
