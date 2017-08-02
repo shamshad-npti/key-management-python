@@ -30,7 +30,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            easy_install pip
+            sudo easy_install pip
             pip install virtualenv
             virtualenv venv
             . venv/bin/activate
