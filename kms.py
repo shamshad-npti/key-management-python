@@ -100,12 +100,16 @@ class KeyManager(object):
     num_bits = 1024
     block_size = 32
 
-    def __init__(self, datasource=DatastoreDatasource(), fetch=True):
+    def __init__(self, datasource=None, fetch=True):
         """
         fetch the public and private keys from datastore and
         initialize it
         """
-        self._datasource = datasource
+        if datasource is None:
+            self._datasource = DatastoreDatasource()
+        else:
+            self._datasource = datasource
+
         if fetch:
             self._public_key = RSA.importKey(datasource.get(self.public_key_id))
             self._private_key = RSA.importKey(datasource.get(self.private_key_id))
