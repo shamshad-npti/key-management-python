@@ -8,20 +8,21 @@ class TestDatasource(unittest.TestCase):
 
     def test_get(self):
         datasource = DictDatasource()
-        self.assertRaises(NotFoundError, datasource.get("test_key"))
+        self.assertRaises(NotFoundError, datasource.get, "test_key")
         datasource.put("test_key", "test_value")
         self.assertEqual(datasource.get("test_key"), "test_value")
 
     def test_delete(self):
         datasource = DictDatasource()
-        self.assertRaises(KeyError, datasource.delete("test_key"))
+        self.assertRaises(KeyError, datasource.delete, "test_key")
         datasource.put("test_key", "test_value")
         self.assertTrue(datasource.delete("test_key"))
 
 class TestKeyManager(unittest.TestCase):
     def setUp(self):
         self.datasource = DictDatasource()
-        self.key_manager = KeyManager(datasource=self.datasource, fetch=False)
+        KeyManager(datasource=self.datasource, fetch=False).init()
+        self.key_manager = KeyManager(datasource=self.datasource)
 
     def test_init(self):
         self.assertTrue(self.key_manager.init())
