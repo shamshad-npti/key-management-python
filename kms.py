@@ -222,10 +222,38 @@ class KeyManager(object):
         self._datasource.delete(name)
         return True
 
-    def init(self, filename=None, passphrase=None):
+    def _check_if_exists(self):
+        not_exists = False
+        keys = 0
+        try:
+            self._datasource.get(self.public_key_id)
+            keys += 1
+            self._datasource.get(self.private_key_id)
+            keys += 1
+            self._datasource.get(self.secret_key)
+            keys += 1
+        except NotFoundError:
+            not_exists = True
+
+        return keys
+
+
+    def init(self, filename=None, passphrase=None, overwrite=False):
         """
         initialize key manager
         """
+        found = False
+        if not overwrite:
+            found = self._check_if_exists()
+
+        if found:
+            message = ("RSA key already exists" if found <= 2 else
+                       "All three keys already exist")
+            resp = input("{}. \n\nDo you want to overwrite them [yN]: ".format(message))
+
+            if resp.upper() != 'Y':
+                return
+
         if isinstance(filename, basestring):
             rsa_key = RSA.importKey(open(filename, "rb").readlines(), passphrase=passphrase)
             if not rsa_key.has_private():
@@ -298,6 +326,7 @@ def _main():
     delete.add_argument("--name", "-n", help="Name of the key")
 
     subparser.add_parser("init")
+    subparser.add_parser("--overwrite", action="store_true")
 
     func = {
         "save": _save,
