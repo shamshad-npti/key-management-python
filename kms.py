@@ -251,12 +251,12 @@ class KeyManager(object):
                        "All three keys already exist")
 
             if not prompt:
-                return
+                return True
 
             resp = input("{}. \n\nDo you want to overwrite them [yN]: ".format(message))
 
             if resp.upper() != 'Y':
-                return
+                return True
 
         if isinstance(filename, basestring):
             rsa_key = RSA.importKey(open(filename, "rb").readlines(), passphrase=passphrase)
