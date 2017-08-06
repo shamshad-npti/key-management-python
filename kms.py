@@ -238,7 +238,7 @@ class KeyManager(object):
         return keys
 
 
-    def init(self, filename=None, passphrase=None, overwrite=False):
+    def init(self, filename=None, passphrase=None, overwrite=False, prompt=True):
         """
         initialize key manager
         """
@@ -249,6 +249,10 @@ class KeyManager(object):
         if found:
             message = ("RSA key already exists" if found <= 2 else
                        "All three keys already exist")
+
+            if not prompt:
+                return
+
             resp = input("{}. \n\nDo you want to overwrite them [yN]: ".format(message))
 
             if resp.upper() != 'Y':

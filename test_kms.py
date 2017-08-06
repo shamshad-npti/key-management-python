@@ -21,11 +21,11 @@ class TestDatasource(unittest.TestCase):
 class TestKeyManager(unittest.TestCase):
     def setUp(self):
         self.datasource = DictDatasource()
-        KeyManager(datasource=self.datasource, fetch=False).init()
+        KeyManager(datasource=self.datasource, fetch=False).init(prompt=False)
         self.key_manager = KeyManager(datasource=self.datasource)
 
     def test_init(self):
-        self.assertTrue(self.key_manager.init())
+        self.assertTrue(self.key_manager.init(prompt=False))
 
     def test_encrypt_and_save(self):
         self.assertTrue(self.key_manager.encrypt_and_save("test_key", "test_value"))
