@@ -2,7 +2,7 @@ import glob
 from setuptools import setup, find_packages
 
 PACKAGE_NAME = 'key-management-python'
-PACKAGE_VERSION = "0.01"
+PACKAGE_VERSION = "0.02"
 
 if __name__ == '__main__':
     setup(
@@ -11,7 +11,7 @@ if __name__ == '__main__':
         description='Manage keys for application',
         license='Apache License, Version 2.0',
         packages=find_packages(),
-        scripts=glob.glob('*.py'),
+        scripts=glob.glob('kms/*.py'),
         install_requires=[
             'pycrypto==2.6.1',
             'google-cloud-datastore==1.1.0',

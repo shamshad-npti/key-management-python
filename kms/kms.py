@@ -9,6 +9,7 @@ in encrypted format and those information such as database
 password would be retrieved and decrypted when application
 gets deployed or starts running
 """
+import os
 import argparse
 import re
 import random
@@ -97,6 +98,7 @@ class DatastoreDatasource(Datasource):
 
     def __init__(self, project=None):
         super(DatastoreDatasource, self).__init__()
+        project = project or os.environ.get("GCP_PROJECT", None)
         self._client = datastore.Client(project=project)
 
     def _create_key(self, path, namespace=None):
@@ -110,7 +112,7 @@ class DatastoreDatasource(Datasource):
         return data.get(self.field, None)
 
     def put(self, key, value, key_type=None):
-        entity = datastore.Entity(key=key, exclude_from_indexes=(self.field,))
+        entity = datastore.Entity(key=self._create_key(key), exclude_from_indexes=(self.field,))
         entity.update({self.field: value})
         self._client.put(entity)
         return True
@@ -161,10 +163,9 @@ class KeyManager(object):
         fetch the public and private keys from datastore and
         initialize it
         """
-        if datasource is None:
-            self._datasource = DatastoreDatasource()
-        else:
-            self._datasource = datasource
+        datasource = datasource or DatastoreDatasource()
+
+        self._datasource = datasource
 
         if fetch:
             self._public_key = RSA.importKey(datasource.get(self.public_key_id))
@@ -223,7 +224,6 @@ class KeyManager(object):
         return True
 
     def _check_if_exists(self):
-        not_exists = False
         keys = 0
         try:
             self._datasource.get(self.public_key_id)
@@ -233,7 +233,7 @@ class KeyManager(object):
             self._datasource.get(self.secret_key)
             keys += 1
         except NotFoundError:
-            not_exists = True
+            pass
 
         return keys
 
@@ -247,13 +247,20 @@ class KeyManager(object):
             found = self._check_if_exists()
 
         if found:
-            message = ("RSA key already exists" if found <= 2 else
-                       "All three keys already exist")
+            message = (("RSA key-pair has been used for encrypting AES secret"
+                        " key. It seems like RSA key-pair is already there"
+                        " but AES secret key is missing") if found <= 2 else
+                       ("WARNING: A set of keys are internally managed"
+                        " and used for encryption and decryption. It"
+                        " seems like datasource has already been"
+                        " initialized with secret keys. You would"
+                        " not be able to restore previously encrypted data"
+                        " stored in this datasource if you overwrite keys"))
 
             if not prompt:
                 return True
 
-            resp = input("{}. \n\nDo you want to overwrite them [yN]: ".format(message))
+            resp = raw_input("{}. \n\nDo you want to overwrite them [yN]: ".format(message))
 
             if resp.upper() != 'Y':
                 return True
@@ -261,7 +268,7 @@ class KeyManager(object):
         if isinstance(filename, basestring):
             rsa_key = RSA.importKey(open(filename, "rb").readlines(), passphrase=passphrase)
             if not rsa_key.has_private():
-                raise ValueError("Private is missing")
+                raise ValueError("Private key is missing")
         else:
             rsa_key = RSA.generate(self.num_bits, Random.new().read)
 
@@ -329,8 +336,8 @@ def _main():
     delete = subparser.add_parser("delete")
     delete.add_argument("--name", "-n", help="Name of the key")
 
-    subparser.add_parser("init")
-    subparser.add_parser("--overwrite", action="store_true")
+    init = subparser.add_parser("init")
+    init.add_argument("--overwrite", action="store_true")
 
     func = {
         "save": _save,
