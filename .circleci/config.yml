@@ -46,7 +46,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            nosetests -vv test_*.py
+            nosetests -vv kms/test_*.py
       - store_artifacts:
           path: test-reports
           destination: test-reports
