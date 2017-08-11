@@ -33,3 +33,52 @@ $ python -m kms get --name key-name
 
 ```bash
 $ python -m kms delete --name key-name
+```
+
+**Python Program**
+
+```python
+from kms import kms
+
+key_manager = kms.KeyManager()
+
+# initialize key managar
+key_manager.init(prompt=False)
+
+# store a secret value to key manager
+key_manager.encrypt_and_save(name="key-name", value="some-secret-text")
+
+# retrieve a secret value from key manager
+key_manager.get_and_decrypt(name="key-name")
+
+# delete a secret key from key manager
+key_manager.delete(name="key-name")
+```
+
+**Extending datasource in to be used by key manager**
+
+`KeyManager` internally uses `Datasource` (Key Value Datastore) to manage keys.
+A new datasource can easily be integrated with `KeyManager` by extending `Datasource` class and supplying an instance of `Datasource` when we create `KeyManager`.
+
+```python
+from kms import kms
+
+class MyDatasource(Datasource):
+	"""
+	MyDatasource - extend Datasource
+	"""
+	def __init__(self):
+		pass
+
+    def get(self, key, key_type=None):
+        pass
+
+    def put(self, key, value, key_type=None):
+        pass
+
+    def delete(self, key, key_type=None):
+        pass
+
+# Now create a KeyManager instance as follow
+key_manager = KeyManager(datasource=MyDatasource())
+```
