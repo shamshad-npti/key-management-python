@@ -55,7 +55,7 @@ key_manager.get_and_decrypt(name="key-name")
 key_manager.delete(name="key-name")
 ```
 
-**Extending datasource in to be used by key manager**
+**Extending datasource to be used by key manager**
 
 `KeyManager` internally uses `Datasource` (Key Value Datastore) to manage keys.
 A new datasource can easily be integrated with `KeyManager` by extending `Datasource` class and supplying an instance of `Datasource` when we create `KeyManager`.
@@ -64,11 +64,12 @@ A new datasource can easily be integrated with `KeyManager` by extending `Dataso
 from kms import kms
 
 class MyDatasource(Datasource):
-	"""
-	MyDatasource - extend Datasource
-	"""
-	def __init__(self):
-		pass
+    """
+    MyDatasource - extend Datasource
+    """
+    
+    def __init__(self):
+        pass
 
     def get(self, key, key_type=None):
         pass
