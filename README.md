@@ -63,7 +63,7 @@ A new datasource can easily be integrated with `KeyManager` by extending `Dataso
 ```python
 from kms import kms
 
-class MyDatasource(Datasource):
+class MyDatasource(kms.Datasource):
     """
     MyDatasource - extend Datasource
     """
