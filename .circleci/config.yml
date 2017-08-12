@@ -46,7 +46,8 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            nosetests -vv kms/test_*.py
+            nosetests --with-coverage -vv --cover-package=kms kms/test_*.py
+            COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} coveralls
       - store_artifacts:
           path: test-reports
           destination: test-reports

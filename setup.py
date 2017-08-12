@@ -16,5 +16,6 @@ if __name__ == '__main__':
             'pycrypto==2.6.1',
             'google-cloud-datastore==1.1.0',
         ],
-        zip_safe=True
+        zip_safe=True,
+        test_suite="nose.collector"
     )

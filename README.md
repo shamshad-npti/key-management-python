@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/shamshad-npti/key-management-python.svg?style=svg)](https://circleci.com/gh/shamshad-npti/key-management-python) [![Requirements Status](https://requires.io/github/shamshad-npti/key-management-python/requirements.svg?branch=master)](https://requires.io/github/shamshad-npti/key-management-python/requirements/?branch=master)
+[![CircleCI](https://circleci.com/gh/shamshad-npti/key-management-python.svg?style=svg)](https://circleci.com/gh/shamshad-npti/key-management-python) [![Requirements Status](https://requires.io/github/shamshad-npti/key-management-python/requirements.svg?branch=master)](https://requires.io/github/shamshad-npti/key-management-python/requirements/?branch=master) [![Coverage Status](https://coveralls.io/repos/github/shamshad-npti/key-management-python/badge.svg?branch=master)](https://coveralls.io/github/shamshad-npti/key-management-python?branch=master)
 
 
 ## Key Management
