@@ -14,7 +14,7 @@ if __name__ == '__main__':
         scripts=glob.glob('kms/*.py'),
         install_requires=[
             'pycrypto==2.6.1',
-            'google-cloud-datastore==1.1.0',
+            'google-cloud-datastore==1.7.3',
         ],
         zip_safe=True,
         test_suite="nose.collector"
