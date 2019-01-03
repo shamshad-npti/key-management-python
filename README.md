@@ -58,7 +58,7 @@ key_manager.delete(name="key-name")
 
 **Extending datasource to be used by key manager**
 
-`KeyManager` internally uses `Datasource` (Key Value Datastore) to manage keys.
+`KeyManager` internally uses `Datasource` (a key-value store such as datastore) to manage keys.
 A new datasource can easily be integrated with `KeyManager` by extending `Datasource` class and supplying an instance of `Datasource` when we create `KeyManager`.
 
 ```python
